@@ -4020,7 +4020,7 @@ class ConfigGeneral(Config):
             fuzzy_dating=None, trim_zero=None, date_preset=None, date_preset_na=None, time_preset=None,
             indexer_timeout=None, download_url=None, rootDir=None, theme_name=None, default_page=None, fanart_background=None, fanart_background_opacity=None,
             sickchill_background=None, sickchill_background_path=None, custom_css=None, custom_css_path=None,
-            git_reset=None, git_auth_type=0, git_username=None, git_password=None, git_token=None,
+            git_reset=None, git_auth_type=0, git_use_mirrors=True, git_username=None, git_password=None, git_token=None,
             display_all_seasons=None, gui_language=None, ignore_broken_symlinks=None):
 
         results = []
@@ -4061,9 +4061,11 @@ class ConfigGeneral(Config):
         sickbeard.PROXY_INDEXERS = config.checkbox_to_value(proxy_indexers)
 
         sickbeard.GIT_AUTH_TYPE = int(git_auth_type)
+        sickbeard.GIT_USE_MIRRORS = git_use_mirrors
         sickbeard.GIT_USERNAME = git_username
         sickbeard.GIT_PASSWORD = filters.unhide(sickbeard.GIT_PASSWORD, git_password)
         sickbeard.GIT_TOKEN = filters.unhide(sickbeard.GIT_TOKEN, git_token)
+        sickbeard.GIT_MIRRORLIST = ['url1', 'url2', 'url3']
 
         # noinspection PyPep8
         if (sickbeard.GIT_AUTH_TYPE, sickbeard.GIT_USERNAME, sickbeard.GIT_PASSWORD, sickbeard.GIT_TOKEN) != (git_auth_type, git_username, git_password, git_token):

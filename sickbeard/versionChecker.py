@@ -231,12 +231,13 @@ class CheckVersion(object):
     @staticmethod
     def find_install_type():
         """
-        Determines how this copy of sr was installed.
+        Determines how this copy of sc was installed.
 
-        returns: type of installation. Possible values are:
+        :returns: type of installation. Possible values are:
             'win': any compiled windows build
             'git': running from source using git
             'source': running from source without git
+        :rtype: str
         """
 
         # check if we're a windows build
@@ -352,6 +353,7 @@ class GitUpdateManager(UpdateManager):
         self._newest_commit_hash = None
         self._num_commits_behind = 0
         self._num_commits_ahead = 0
+        self.MIRRORLIST = sickbeard.GIT_MIRRORLIST
 
     def get_cur_commit_hash(self):
         return self._cur_commit_hash
@@ -471,7 +473,8 @@ class GitUpdateManager(UpdateManager):
 
         Uses git show to get commit version.
 
-        Returns: True for success or False for failure
+        :returns: True for success or False for failure
+        :rtype: bool
         """
 
         output, errors_, exit_status = self._run_git(self._git_path, 'rev-parse HEAD')  # @UnusedVariable
@@ -598,10 +601,42 @@ class GitUpdateManager(UpdateManager):
 
         return False
 
+    def _majority_agrees(self, mirrorlist=self.MIRRORLIST):
+        """
+        Checks if the majority of the mirrors from the mirrorfile has the commit we want to upgrade to
+
+        :param mirrorlist: list of git URN's of mirrors
+        :return: True on success, False on failure
+        :rtype: bool
+
+        """
+
+        mirror_agrees = 0
+        needed_mirrors = int(round(len(mirrorlist)))
+
+        for mirror in mirrorlist:
+            # Method for detection of the commit is present:
+            # - See if there is a tag present with the commit number we want to go to
+            # - Another option would be if that fails, do a clone in a TMPDIR and search commit logs, but this will
+            #   be very resource intensive
+
+            stdout_, stderr_, exit_status = self._run_git(self._git_path,
+                                                          'ls-remote {0} {1}'.format(mirror, self.branch))
+
+            if exit_status == 0 and self._newest_commit_hash in stdout_:
+                mirror_agrees += 1
+
+        if mirror_agrees >= needed_mirrors:
+            return True
+
+        return False
+
     def update(self):
         """
-        Calls git pull origin <branch> in order to update SickChill. Returns a bool depending
-        on the call's success.
+        Calls git pull origin <branch> in order to update SickChill.
+
+        :return: True for success, False for failure
+        :rtype: bool
         """
 
         # update remote origin url
@@ -612,10 +647,23 @@ class GitUpdateManager(UpdateManager):
             # self.clean() # This is removing user data and backups
             self.reset()
 
-        if self.branch == self._find_installed_branch():
-            stdout_, stderr_, exit_status = self._run_git(self._git_path, 'pull -f {0} {1}'.format(sickbeard.GIT_REMOTE, self.branch))
+        if sickbeard.GIT_USE_MIRRORS:
+            if self.branch == self._find_installed_branch() and self._majority_agrees():
+                stdout_, stderr_, exit_status = self._run_git(self._git_path, 'pull -f {0} {1}'.format(
+                    sickbeard.GIT_REMOTE, self.branch))
+
+            elif self._majority_agrees():
+                stdout_, stderr_, exit_status = self._run_git(self._git_path, 'checkout -f ' + self.branch)
+            else:
+                # Notify update problem
+                notifiers.notify_git_update('There was a problem updating, mirrors are syncing. Please try again in a bit')
         else:
-            stdout_, stderr_, exit_status = self._run_git(self._git_path, 'checkout -f ' + self.branch)
+            if self.branch == self._find_installed_branch():
+                stdout_, stderr_, exit_status = self._run_git(self._git_path,
+                                                              'pull -f {0} {1}'.format(sickbeard.GIT_REMOTE,
+                                                                                       self.branch))
+            else:
+                stdout_, stderr_, exit_status = self._run_git(self._git_path, 'checkout -f ' + self.branch)
 
         if exit_status == 0:
             self._find_installed_version()
