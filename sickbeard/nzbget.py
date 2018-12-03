@@ -106,7 +106,7 @@ def sendNZB(nzb, proper=False):  # pylint: disable=too-many-locals, too-many-sta
     logger.log('URL: ' + url, logger.DEBUG)
 
     try:
-        # Find out if nzbget supports priority (Version 9.0+), old versions beginning with a 0.x will use the old command
+        # Find out if nzbget supports priority (V 9.0+), old versions beginning with a 0.x will use the old command
         nzbget_version_str = nzbGetRPC.version()
         nzbget_version = try_int(nzbget_version_str[:nzbget_version_str.find('.')])
         if nzbget_version == 0:

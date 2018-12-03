@@ -59,7 +59,8 @@ class ProperFinder(object):  # pylint: disable=too-few-public-methods
 
         run_at = ""
         if None is sickbeard.properFinderScheduler.start_time:
-            run_in = sickbeard.properFinderScheduler.lastRun + sickbeard.properFinderScheduler.cycleTime - datetime.datetime.now()
+            run_in = sickbeard.properFinderScheduler.lastRun + sickbeard.properFinderScheduler.cycleTime \
+                     - datetime.datetime.now()
             hours, remainder = divmod(run_in.seconds, 3600)
             minutes, seconds = divmod(remainder, 60)
             run_at = ", next check in approx. " + (
@@ -91,7 +92,8 @@ class ProperFinder(object):  # pylint: disable=too-few-public-methods
                 logger.log("Authentication error: " + ex(e), logger.WARNING)
                 continue
             except Exception as e:
-                logger.log("Exception while searching propers in " + curProvider.name + ", skipping: " + ex(e), logger.ERROR)
+                logger.log("Exception while searching propers in " + curProvider.name + ", skipping: " + ex(e),
+                           logger.ERROR)
                 logger.log(traceback.format_exc(), logger.DEBUG)
                 continue
 
@@ -163,7 +165,9 @@ class ProperFinder(object):  # pylint: disable=too-few-public-methods
 
             # check if we actually want this proper (if it's the right quality)
             main_db_con = db.DBConnection()
-            sql_results = main_db_con.select("SELECT status FROM tv_episodes WHERE showid = ? AND season = ? AND episode = ?",
+            sql_results = main_db_con.select("SELECT status "
+                                             "FROM tv_episodes "
+                                             "WHERE showid = ? AND season = ? AND episode = ?",
                                              [bestResult.indexerid, bestResult.season, bestResult.episode])
             if not sql_results:
                 continue
@@ -189,8 +193,9 @@ class ProperFinder(object):  # pylint: disable=too-few-public-methods
                     continue
 
                 if oldRelease_group != bestResult.release_group:
-                    logger.log(
-                        "Skipping proper from release group: " + bestResult.release_group + ", does not match existing release group: " + oldRelease_group)
+                    logger.log("Skipping proper from release group: {0}, "
+                               "does not match existing release group {1}".format(bestResult.release_group,
+                                                                                  oldRelease_group))
                     continue
 
             # if the show is in our list and there hasn't been a proper already added for that particular episode then add it to our list of propers
@@ -222,8 +227,8 @@ class ProperFinder(object):  # pylint: disable=too-few-public-methods
 
             # if we didn't download this episode in the first place we don't know what quality to use for the proper so we can't do it
             if not historyResults:
-                logger.log(
-                    "Unable to find an original history entry for proper " + curProper.name + " so I'm not downloading it.")
+                logger.log("Unable to find an original history entry for proper {0} "
+                           "so I'm not downloading it.".format(curProper.name))
                 continue
 
             else:

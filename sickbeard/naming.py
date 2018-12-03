@@ -217,7 +217,8 @@ def validate_name(pattern, multi=None, anime_type=None,  # pylint: disable=too-m
             logger.log("Air date incorrect in parsed episode, pattern isn't valid", logger.DEBUG)
             return False
     elif anime_type != 3:
-        if len(result.ab_episode_numbers) and result.ab_episode_numbers != [x.absolute_number for x in [ep] + ep.relatedEps]:
+        if len(result.ab_episode_numbers) and \
+                result.ab_episode_numbers != [x.absolute_number for x in [ep] + ep.relatedEps]:
             logger.log("Absolute numbering incorrect in parsed episode, pattern isn't valid", logger.DEBUG)
             return False
     else:
@@ -285,4 +286,5 @@ def generate_sample_ep(multi=None, abd=False, sports=False, anime_type=None):
 def test_name(pattern, multi=None, abd=False, sports=False, anime_type=None):
     ep = generate_sample_ep(multi, abd, sports, anime_type)
 
-    return {'name': ep.formatted_filename(pattern, multi, anime_type), 'dir': ep.formatted_dir(pattern, multi, anime_type)}
+    return {'name': ep.formatted_filename(pattern, multi, anime_type),
+            'dir': ep.formatted_dir(pattern, multi, anime_type)}

@@ -430,7 +430,8 @@ def link(src, dst):
     """
 
     if platform.system() == 'Windows':
-        if ctypes.windll.kernel32.CreateHardLinkW(ctypes.c_wchar_p(six.text_type(dst)), ctypes.c_wchar_p(six.text_type(src)), None) == 0:
+        if ctypes.windll.kernel32.CreateHardLinkW(ctypes.c_wchar_p(six.text_type(dst)),
+                                                  ctypes.c_wchar_p(six.text_type(src)), None) == 0:
             raise ctypes.WinError()
     else:
         ek(os.link, src, dst)
@@ -645,7 +646,8 @@ def chmodAsParent(childPath):
     parentPath = ek(os.path.dirname, childPath)
 
     if not parentPath:
-        logger.log(_("No parent path provided in {location} unable to get permissions from it").format(location=childPath), logger.DEBUG)
+        logger.log(_("No parent path provided in {location} unable to get permissions from it").
+                   format(location=childPath), logger.DEBUG)
         return
 
     childPath = ek(os.path.join, parentPath, ek(os.path.basename, childPath))
@@ -668,13 +670,17 @@ def chmodAsParent(childPath):
     user_id = os.geteuid()  # @UndefinedVariable - only available on UNIX
 
     if user_id not in (childPath_owner, 0):
-        logger.log(_("Not running as root or owner of {location}, not trying to set permissions").format(location=childPath), logger.DEBUG)
+        logger.log(_("Not running as root or owner of {location}, not trying to set permissions").
+                   format(location=childPath), logger.DEBUG)
         return
 
     try:
         ek(os.chmod, childPath, childMode)
     except OSError:
-        logger.log(_("Failed to set permission for {0} to {1:o}, parent directory has {2:o}").format(childPath, childMode, parentMode), logger.DEBUG)
+        logger.log(_("Failed to set permission for {0} to {1:o}, parent directory has {2:o}").format(childPath,
+                                                                                                     childMode,
+                                                                                                     parentMode),
+                   logger.DEBUG)
 
 
 def fixSetGroupID(childPath):
@@ -706,12 +712,14 @@ def fixSetGroupID(childPath):
         user_id = os.geteuid()  # @UndefinedVariable - only available on UNIX
 
         if user_id not in (childPath_owner, 0):
-            logger.log(_("Not running as root or owner of {}, not trying to set the set-group-ID").format(childPath), logger.DEBUG)
+            logger.log(_("Not running as root or owner of {}, not trying to set the set-group-ID").format(childPath),
+                       logger.DEBUG)
             return
 
         try:
             ek(os.chown, childPath, -1, parentGID)  # @UndefinedVariable - only available on UNIX
-            logger.log(_("Respecting the set-group-ID bit on the parent directory for {0}").format(childPath), logger.DEBUG)
+            logger.log(_("Respecting the set-group-ID bit on the parent directory for {0}").format(childPath),
+                       logger.DEBUG)
         except OSError:
             logger.log(
                 "Failed to respect the set-group-ID bit on the parent directory for {0} (setting group ID {1})".format(
@@ -778,7 +786,8 @@ def get_all_episodes_from_absolute_number(show, absolute_numbers, indexer_id=Non
             ep = show.getEpisode(None, None, absolute_number=absolute_number)
             if ep:
                 episodes.append(ep.episode)
-                season = ep.season  # this will always take the last found season so eps that cross the season border are not handeled well
+                # this will always take the last found season so eps that cross the season border are not handeled well
+                season = ep.season
 
     return season, episodes
 
@@ -896,13 +905,15 @@ def backupVersionedFile(old_file, version):
             logger.log(_("Backup done"), logger.DEBUG)
             break
         except Exception as error:
-            logger.log(_("Error while trying to back up {0} to {1} : {2}").format(old_file, new_file, error), logger.WARNING)
+            logger.log(_("Error while trying to back up {0} to {1} : {2}").format(old_file, new_file, error),
+                       logger.WARNING)
             numTries += 1
             time.sleep(1)
             logger.log(_("Trying again."), logger.DEBUG)
 
         if numTries >= 10:
-            logger.log(_("Unable to back up {0} to {1} please do it manually.").format(old_file, new_file), logger.ERROR)
+            logger.log(_("Unable to back up {0} to {1} please do it manually.").format(old_file, new_file),
+                       logger.ERROR)
             return False
 
     return True
@@ -947,7 +958,8 @@ def restoreVersionedFile(backup_file, version):
             logger.log(_("Restore done"), logger.DEBUG)
             break
         except Exception as error:
-            logger.log(_("Error while trying to restore file {0}. Error: {1}").format(restore_file, error), logger.WARNING)
+            logger.log(_("Error while trying to restore file {0}. Error: {1}").format(restore_file, error),
+                       logger.WARNING)
             numTries += 1
             time.sleep(1)
             logger.log(_("Trying again. Attempt #: {0}").format(numTries), logger.DEBUG)
@@ -1023,7 +1035,8 @@ def encrypt(data, encryption_version=0, _decrypt=False):
     # Version 2: Simple XOR encryption (this is not very secure, but works)
     elif encryption_version == 2:
         if _decrypt:
-            return ''.join(chr(ord(x) ^ ord(y)) for (x, y) in izip(base64.decodestring(data), cycle(sickbeard.ENCRYPTION_SECRET)))
+            return ''.join(chr(ord(x) ^ ord(y)) for (x, y) in izip(base64.decodestring(data),
+                                                                   cycle(sickbeard.ENCRYPTION_SECRET)))
         else:
             return base64.encodestring(
                 ''.join(chr(ord(x) ^ ord(y)) for (x, y) in izip(data, cycle(sickbeard.ENCRYPTION_SECRET)))).strip()
@@ -1087,7 +1100,8 @@ def get_show(name, tryIndexers=False):
         if showObj and not fromCache:
             sickbeard.name_cache.addNameToCache(name, showObj.indexerid)
     except Exception as error:
-        logger.log(_("Error when attempting to find show: {0} in SickChill. Error: {1} ").format(name, error), logger.DEBUG)
+        logger.log(_("Error when attempting to find show: {0} in SickChill. Error: {1} ").format(name, error),
+                   logger.DEBUG)
 
     return showObj
 
@@ -1119,7 +1133,8 @@ def is_hidden_folder(folder):
 
 def real_path(path):
     """
-    Returns: the canonicalized absolute pathname. The resulting path will have no symbolic link, '/./' or '/../' components.
+    Returns: the canonicalized absolute pathname.
+    The resulting path will have no symbolic link, '/./' or '/../' components.
     """
     return ek(os.path.normpath, ek(os.path.normcase, ek(os.path.realpath, path)))
 
@@ -1331,19 +1346,22 @@ def mapIndexersToShow(showObj):
                 mapped_show = t[showObj.name]
             except Exception:
                 logger.log(_("Unable to map {} -> {} for show: {}, skipping it").format(
-                    sickbeard.indexerApi(showObj.indexer).name, sickbeard.indexerApi(indexer).name, showObj.name), logger.DEBUG)
+                    sickbeard.indexerApi(showObj.indexer).name, sickbeard.indexerApi(indexer).name, showObj.name),
+                    logger.DEBUG)
                 continue
 
             if mapped_show and len(mapped_show) == 1:
                 logger.log(_("Mapping {} -> {} for show: {}").format(
-                    sickbeard.indexerApi(showObj.indexer).name, sickbeard.indexerApi(indexer).name, showObj.name), logger.DEBUG)
+                    sickbeard.indexerApi(showObj.indexer).name, sickbeard.indexerApi(indexer).name, showObj.name),
+                    logger.DEBUG)
 
                 mapped[indexer] = int(mapped_show[0][b'id'])
 
                 logger.log(_("Adding indexer mapping to DB for show: {}").format(showObj.name), logger.DEBUG)
 
                 sql_l.append([
-                    "INSERT OR IGNORE INTO indexer_mapping (indexer_id, indexer, mindexer_id, mindexer) VALUES (?,?,?,?)",
+                    "INSERT OR IGNORE INTO indexer_mapping (indexer_id, indexer, mindexer_id, mindexer) "
+                    "VALUES (?,?,?,?)",
                     [showObj.indexerid, showObj.indexer, int(mapped_show[0][b'id']), indexer]])
 
         if sql_l:
@@ -1465,9 +1483,12 @@ def getURL(url, post_data=None, params=None, headers=None,  # pylint:disable=too
         return None
 
     try:
-        return resp if response_type == 'response' or response_type is None else resp.json() if response_type == 'json' else getattr(resp, response_type, resp)
+        return resp if response_type == 'response' or response_type is None \
+            else resp.json() if response_type == 'json' \
+            else getattr(resp, response_type, resp)
     except ValueError:
-        logger.log(_('Requested a json response but response was not json, check the url: {0}').format(url), logger.DEBUG)
+        logger.log(_('Requested a json response but response was not json, check the url: {0}').format(url),
+                   logger.DEBUG)
         return None
 
 
@@ -1506,7 +1527,8 @@ def download_file(url, filename, session=None, headers=None, **kwargs):  # pylin
 
                 chmodAsParent(filename)
             except Exception as error:
-                logger.log(_("Problem downloading file, setting permissions or writing file to {0} - ERROR: {1}").format(filename, error), logger.WARNING)
+                logger.log(_("Problem downloading file, setting permissions or writing file to {0} - ERROR: {1}").
+                           format(filename, error), logger.WARNING)
 
     except Exception as error:
         # noinspection PyTypeChecker
@@ -1525,9 +1547,11 @@ def handle_requests_exception(requests_exception):  # pylint: disable=too-many-b
         raise requests_exception
     except requests.exceptions.SSLError as error:
         if ssl.OPENSSL_VERSION_INFO < (1, 0, 1, 5):
-            logger.log(_("SSL Error requesting url: '{0}' You have {1}, try upgrading OpenSSL to 1.0.1e+").format(error.request.url, ssl.OPENSSL_VERSION))
+            logger.log(_("SSL Error requesting url: '{0}' You have {1}, try upgrading OpenSSL to 1.0.1e+").
+                       format(error.request.url, ssl.OPENSSL_VERSION))
         if sickbeard.SSL_VERIFY:
-            logger.log(_("SSL Error requesting url: '{0}' Try disabling Cert Verification on the advanced tab of /config/general").format(error.request.url))
+            logger.log(_("SSL Error requesting url: '{0}' Try disabling Cert Verification "
+                         "on the advanced tab of /config/general").format(error.request.url))
         logger.log(default.format(error, type(error.__class__.__name__)), logger.DEBUG)
         logger.log(traceback.format_exc(), logger.DEBUG)
 
@@ -1628,7 +1652,8 @@ def generateCookieSecret():
 def disk_usage(path):
     if platform.system() == 'Windows':
         free = ctypes.c_ulonglong(0)
-        if ctypes.windll.kernel32.GetDiskFreeSpaceExW(ctypes.c_wchar_p(six.text_type(path)), None, None, ctypes.pointer(free)) == 0:
+        if ctypes.windll.kernel32.GetDiskFreeSpaceExW(ctypes.c_wchar_p(six.text_type(path)),
+                                                      None, None, ctypes.pointer(free)) == 0:
             raise ctypes.WinError()
         return free.value
 
@@ -1658,7 +1683,9 @@ def verify_freespace(src, dest, oldfile=None, method="copy"):
     :param dest: Destination path (show dir in current usage)
     :param oldfile: File to be replaced (defaults to None)
     :param method: The post processing method
-    :return: True if there is enough space for the file, False if there isn't. Also returns True if the OS doesn't support this option
+    :return: True if there is enough space for the file, False if there isn't.
+             Also returns True if the OS doesn't support this option
+    :rtype: bool
     """
 
     if not isinstance(oldfile, list):
@@ -1670,9 +1697,10 @@ def verify_freespace(src, dest, oldfile=None, method="copy"):
         logger.log(_("A path to a file is required for the source. {0} is not a file.").format(src), logger.WARNING)
         return True
 
-    if not (ek(os.path.isdir, dest) or (sickbeard.CREATE_MISSING_SHOW_DIRS and ek(os.path.isdir, ek(os.path.dirname, dest)))):
-        logger.log(_("A path is required for the destination. Check that the root dir and show locations are correct for {0} (I got '{1}')").format(
-            oldfile[0].name, dest), logger.WARNING)
+    if not (ek(os.path.isdir, dest) or (sickbeard.CREATE_MISSING_SHOW_DIRS and ek(os.path.isdir, ek(os.path.dirname,
+                                                                                                    dest)))):
+        logger.log(_("A path is required for the destination. Check that the root dir and show locations "
+                     "are correct for {0} (I got '{1}')").format(oldfile[0].name, dest), logger.WARNING)
         return False
 
     dest = (ek(os.path.dirname, dest), dest)[ek(os.path.isdir, dest)]
@@ -1681,7 +1709,8 @@ def verify_freespace(src, dest, oldfile=None, method="copy"):
     # then by definition there is enough space
     if method == "move" and ek(os.stat, src).st_dev == ek(os.stat, dest).st_dev:  # pylint:
         # disable=no-member
-        logger.log(_("Process method is 'move' and src and destination are on the same device, skipping free space check"), logger.INFO)
+        logger.log(_("Process method is 'move' and src and destination are on the same device, "
+                     "skipping free space check"), logger.INFO)
         return True
 
     try:
@@ -1707,7 +1736,8 @@ def verify_freespace(src, dest, oldfile=None, method="copy"):
         return True
     else:
         logger.log(_("Not enough free space: Needed: {0} bytes ( {1} ), found: {2} bytes ( {3} )").format
-                   (needed_space, pretty_file_size(needed_space), disk_free, pretty_file_size(disk_free)), logger.WARNING)
+                   (needed_space, pretty_file_size(needed_space), disk_free, pretty_file_size(disk_free)),
+                   logger.WARNING)
         return False
 
 
@@ -1903,12 +1933,15 @@ def manage_torrents_url(reset=False):
     if not reset:
         return sickbeard.CLIENT_WEB_URLS.get('torrent', '')
 
-    if not sickbeard.USE_TORRENTS or not sickbeard.TORRENT_HOST.lower().startswith('http') or sickbeard.TORRENT_METHOD == 'blackhole' or \
-            sickbeard.ENABLE_HTTPS and not sickbeard.TORRENT_HOST.lower().startswith('https'):
-        sickbeard.CLIENT_WEB_URLS['torrent'] = ''
-        return sickbeard.CLIENT_WEB_URLS.get('torrent')
+    if not sickbeard.USE_TORRENTS or not sickbeard.TORRENT_HOST.lower().startswith('http') \
+        or sickbeard.TORRENT_METHOD == 'blackhole' or sickbeard.ENABLE_HTTPS \
+        and not sickbeard.TORRENT_HOST.lower().startswith('https'):
+            sickbeard.CLIENT_WEB_URLS['torrent'] = ''
+            return sickbeard.CLIENT_WEB_URLS.get('torrent')
 
-    torrent_ui_url = re.sub('localhost|127.0.0.1', sickbeard.LOCALHOST_IP or get_lan_ip(), sickbeard.TORRENT_HOST or '', re.I)
+    torrent_ui_url = re.sub('localhost|127.0.0.1', sickbeard.LOCALHOST_IP or
+                            get_lan_ip(), sickbeard.TORRENT_HOST or
+                            '', re.I)
 
     def test_exists(url):
         try:

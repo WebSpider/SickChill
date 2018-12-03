@@ -35,7 +35,8 @@ class imdbPopular(object):
 
         popular_shows = []
 
-        data = helpers.getURL(self.url, session=self.session, params=self.params, headers={'Referer': 'http://akas.imdb.com/'}, returns='text')
+        data = helpers.getURL(self.url, session=self.session, params=self.params,
+                              headers={'Referer': 'http://akas.imdb.com/'}, returns='text')
         if not data:
             return None
 
@@ -49,7 +50,8 @@ class imdbPopular(object):
                 image = image_div.find("img")
                 show['image_url_large'] = self.change_size(image['loadlate'], 3)
                 show['imdb_tt'] = image['data-tconst']
-                show['image_path'] = ek(posixpath.join, 'images', 'imdb_popular', ek(os.path.basename, show['image_url_large']))
+                show['image_path'] = ek(posixpath.join, 'images', 'imdb_popular', ek(os.path.basename,
+                                                                                     show['image_url_large']))
                 self.cache_image(show['image_url_large'])
 
             content = row.find("div", {"class": "lister-item-content"})
@@ -60,7 +62,8 @@ class imdbPopular(object):
                     if a_tag:
                         show['name'] = a_tag.get_text(strip=True)
                         show['imdb_url'] = "http://www.imdb.com" + a_tag["href"]
-                        show['year'] = header.find("span", {"class": "lister-item-year"}).contents[0].split(" ")[0][1:].strip("-")
+                        show['year'] = header.find("span", {"class": "lister-item-year"}).contents[0].split(" ")[0][
+                                       1:].strip("-")
 
                 imdb_rating = row.find("div", {"class": "ratings-imdb-rating"})
                 show['rating'] = imdb_rating['data-value'] if imdb_rating else None
@@ -92,8 +95,8 @@ class imdbPopular(object):
             matches[6] = int(matches[6]) * factor
             matches[7] = int(matches[7]) * factor
 
-            return "{0}V1._{1}{2}_{3}{4},{5},{6},{7}_.jpg".format(matches[0], matches[1], matches[2], matches[3], matches[4],
-                                                      matches[5], matches[6], matches[7])
+            return "{0}V1._{1}{2}_{3}{4},{5},{6},{7}_.jpg".format(matches[0], matches[1], matches[2], matches[3],
+                                                                  matches[4], matches[5], matches[6], matches[7])
         else:
             return image_url
 
@@ -111,5 +114,6 @@ class imdbPopular(object):
 
         if not ek(os.path.isfile, full_path):
             helpers.download_file(image_url, full_path, session=self.session)
+
 
 imdb_popular = imdbPopular()

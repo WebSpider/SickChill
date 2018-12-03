@@ -83,7 +83,8 @@ class DBConnection(object):
 
         except OperationalError:
             # noinspection PyUnresolvedReferences
-            logger.log(_("Please check your database owner/permissions: {db_filename}").format(db_filename=self.full_path), logger.WARNING)
+            logger.log(_("Please check your database owner/permissions: {db_filename}").
+                       format(db_filename=self.full_path), logger.WARNING)
         except Exception as e:
             self._error_log_helper(e, logger.ERROR, locals(), None, 'DBConnection.__init__')
             raise
@@ -100,12 +101,12 @@ class DBConnection(object):
 
             # Lets print out all of the arguments so we can debug this better
             # noinspection PyUnresolvedReferences
-            logger.log(_("If this happened in cache.db, you can safely stop SickChill, and delete the cache.db file without losing any data"))
+            logger.log(_("If this happened in cache.db, you can safely stop SickChill, and delete the cache.db file "
+                         "without losing any data"))
             # noinspection PyUnresolvedReferences
             logger.log(
-                _("Here is the arguments that were passed to this function (This is what the developers need to know): {local_variables:s}").format(
-                    local_variables=local_variables
-                )
+                _("Here is the arguments that were passed to this function (This is what the developers need to know): "
+                  "{local_variables:s}").format(local_variables=local_variables)
             )
 
     @staticmethod
@@ -225,11 +226,14 @@ class DBConnection(object):
                             sql_results.append(self._execute(qu[0], fetchall=fetchall))
                         elif len(qu) > 1:
                             # noinspection PyUnresolvedReferences
-                            logger.log(_("{filename}: {query} with args {args:s}").format(filename=self.filename, query=qu[0], args=qu[1]), log_level)
+                            logger.log(_("{filename}: {query} with args {args:s}").format(filename=self.filename,
+                                                                                          query=qu[0], args=qu[1]),
+                                       log_level)
                             sql_results.append(self._execute(qu[0], qu[1], fetchall=fetchall))
                     self.connection.commit()
                     # noinspection PyUnresolvedReferences
-                    logger.log(_("Transaction with {count:d} of queries executed successfully").format(count=len(query_list)), log_level)
+                    logger.log(_("Transaction with {count:d} of queries executed successfully").
+                               format(count=len(query_list)), log_level)
 
                     # finished
                     break
@@ -237,7 +241,8 @@ class DBConnection(object):
                     sql_results = []  # Reset results because of rollback
                     if self.connection:
                         self.connection.rollback()
-                    severity = (logger.ERROR, logger.WARNING)[self._is_locked_or_denied(e) and attempt < self.MAX_ATTEMPTS]
+                    severity = (logger.ERROR, logger.WARNING)[self._is_locked_or_denied(e) and
+                                                              attempt < self.MAX_ATTEMPTS]
                     self._error_log_helper(e, severity, locals(), attempt, "db.mass_action")
                     if severity == logger.ERROR:
                         raise
@@ -278,7 +283,8 @@ class DBConnection(object):
                     if args is None:
                         logger.log(self.filename + ": " + query, logger.DB)
                     else:
-                        logger.log("{filename}: {query} with args {args:s}".format(filename=self.filename, query=query, args=args), logger.DB)
+                        logger.log("{filename}: {query} with args {args:s}".format(filename=self.filename,
+                                                                                   query=query, args=args), logger.DB)
 
                     sql_results = self._execute(query, args, fetchall=fetchall, fetchone=fetchone)
                     self.connection.commit()
@@ -290,7 +296,8 @@ class DBConnection(object):
                     if self.connection:
                         self.connection.rollback()
 
-                    severity = (logger.ERROR, logger.WARNING)[self._is_locked_or_denied(e) and attempt < self.MAX_ATTEMPTS]
+                    severity = (logger.ERROR, logger.WARNING)[self._is_locked_or_denied(e) and
+                                                              attempt < self.MAX_ATTEMPTS]
                     self._error_log_helper(e, severity, locals(), attempt, "db.action")
                     if severity == logger.ERROR:
                         raise
@@ -347,7 +354,7 @@ class DBConnection(object):
         :param key_dict:  columns in table to update/insert
         """
 
-        changesBefore = self.connection.total_changes
+        changes_before = self.connection.total_changes
 
         # noinspection PyUnresolvedReferences
         assert None not in key_dict.values(), _("Control dict to upsert cannot have values of None!")
@@ -361,14 +368,16 @@ class DBConnection(object):
 
             self.action(query, value_dict.values() + key_dict.values())
 
-        if self.connection.total_changes == changesBefore:
+        if self.connection.total_changes == changes_before:
             keys = value_dict.keys() + key_dict.keys()
             count = len(keys)
             columns = ", ".join(keys)
             replacements = ", ".join(["?"] * count)
             values = value_dict.values() + key_dict.values()
 
-            query = "INSERT INTO '{table}' ({columns}) VALUES ({replacements})".format(table=table_name, columns=columns, replacements=replacements)
+            query = "INSERT INTO '{table}' ({columns}) VALUES ({replacements})".format(table=table_name,
+                                                                                       columns=columns,
+                                                                                       replacements=replacements)
 
             self.action(query, values)
 
@@ -379,7 +388,8 @@ class DBConnection(object):
         :param table_name: name of table
         :return: array of name/type info
         """
-        return {column[b"name"]: {"type": column[b"type"]} for column in self.select("PRAGMA table_info(`{0}`)".format(table_name))}
+        return {column[b"name"]: {"type": column[b"type"]} for column in self.select("PRAGMA table_info(`{0}`)".
+                                                                                     format(table_name))}
 
     @staticmethod
     def _unicode_text_factory(x):
@@ -524,11 +534,13 @@ class SchemaUpgrade(object):
         major_version, minor_version = self.connection.version
         major_version += 1
         minor_version = 0
-        self.connection.action("UPDATE db_version SET db_version = ?, db_minor_version = ?", [major_version, minor_version])
+        self.connection.action("UPDATE db_version SET db_version = ?, db_minor_version = ?", [major_version,
+                                                                                              minor_version])
         return self.connection.version
 
     def inc_minor_version(self):
         major_version, minor_version = self.connection.version
         minor_version += 1
-        self.connection.action("UPDATE db_version SET db_version = ?, db_minor_version = ?", [major_version, minor_version])
+        self.connection.action("UPDATE db_version SET db_version = ?, db_minor_version = ?", [major_version,
+                                                                                              minor_version])
         return self.connection.version

@@ -51,15 +51,16 @@ class DailySearcher(object):  # pylint:disable=too-few-public-methods
             network_timezones.update_network_dict()
 
         if network_timezones.network_dict:
-            curDate = (datetime.date.today() + datetime.timedelta(days=1)).toordinal()
+            cur_date = (datetime.date.today() + datetime.timedelta(days=1)).toordinal()
         else:
-            curDate = (datetime.date.today() + datetime.timedelta(days=2)).toordinal()
+            cur_date = (datetime.date.today() + datetime.timedelta(days=2)).toordinal()
 
-        curTime = datetime.datetime.now(network_timezones.sb_timezone)
+        cur_time = datetime.datetime.now(network_timezones.sb_timezone)
 
         main_db_con = db.DBConnection()
-        sql_results = main_db_con.select("SELECT showid, airdate, season, episode FROM tv_episodes WHERE status = ? AND (airdate <= ? and airdate > 1)",
-                                         [common.UNAIRED, curDate])
+        sql_results = main_db_con.select("SELECT showid, airdate, season, episode "
+                                         "FROM tv_episodes WHERE status = ? AND (airdate <= ? and airdate > 1)",
+                                         [common.UNAIRED, cur_date])
 
         sql_l = []
         show = None
@@ -79,21 +80,24 @@ class DailySearcher(object):  # pylint:disable=too-few-public-methods
 
             if show.airs and show.network:
                 # This is how you assure it is always converted to local time
-                air_time = network_timezones.parse_date_time(sqlEp[b'airdate'], show.airs, show.network).astimezone(network_timezones.sb_timezone)
+                air_time = network_timezones.parse_date_time(sqlEp[b'airdate'], show.airs, show.network).\
+                    astimezone(network_timezones.sb_timezone)
 
                 # filter out any episodes that haven't started airing yet,
                 # but set them to the default status while they are airing
                 # so they are snatched faster
-                if air_time > curTime:
+                if air_time > cur_time:
                     continue
 
             ep = show.getEpisode(sqlEp[b"season"], sqlEp[b"episode"])
             with ep.lock:
                 if ep.season == 0:
-                    logger.log("New episode " + ep.pretty_name() + " airs today, setting status to SKIPPED because is a special season")
+                    logger.log("New episode " + ep.pretty_name() + " airs today, setting status to SKIPPED "
+                                                                   "because is a special season")
                     ep.status = common.SKIPPED
                 else:
-                    logger.log("New episode {0} airs today, setting to default episode status for this show: {1}".format(ep.pretty_name(), common.statusStrings[ep.show.default_ep_status]))
+                    logger.log("New episode {0} airs today, setting to default episode status for this show: {1}".
+                               format(ep.pretty_name(), common.statusStrings[ep.show.default_ep_status]))
                     ep.status = ep.show.default_ep_status
 
                 sql_l.append(ep.get_sql())

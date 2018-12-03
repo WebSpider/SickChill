@@ -188,13 +188,13 @@ def split_result(obj):
         # make sure the result is sane
         if (parsed_obj.season_number != season) or (parsed_obj.season_number is None and season != 1):
             # pylint: disable=no-member
-            logger.log("Found " + new_nzb + " inside " + obj.name + " but it doesn't seem to belong to the same season, ignoring it",
-                       logger.WARNING)
+            logger.log("Found {0} inside {1} but it doesn't seem to belong in the same season, ignoring it".
+                       format(new_nzb ,obj.name), logger.WARNING)
             continue
         elif not parsed_obj.episode_numbers:
             # pylint: disable=no-member
-            logger.log("Found " + new_nzb + " inside " + obj.name + " but it doesn't seem to be a valid episode NZB, ignoring it",
-                       logger.WARNING)
+            logger.log("Found {0} inside {1} but it doesn't seem to be a valid episode NZB, ignoring it".
+                       format(new_nzb, obj.name), logger.WARNING)
             continue
 
         want_ep = True

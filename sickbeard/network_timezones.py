@@ -48,7 +48,8 @@ def update_network_dict():
     url = 'http://sickchill.github.io/sb_network_timezones/network_timezones.txt'
     data = helpers.getURL(url, session=helpers.make_session(), returns='text')
     if not data:
-        logger.log('Updating network timezones failed, this can happen from time to time. URL: {0}'.format(url), logger.WARNING)
+        logger.log('Updating network timezones failed, this can happen from time to time. URL: {0}'.format(url),
+                   logger.WARNING)
         load_network_dict()
         return
 
@@ -78,7 +79,8 @@ def update_network_dict():
         if not existing:
             queries.append(['INSERT OR IGNORE INTO network_timezones VALUES (?,?);', [network, timezone]])
         elif network_list[network] != timezone:
-            queries.append(['UPDATE OR IGNORE network_timezones SET timezone = ? WHERE network_name = ?;', [timezone, network]])
+            queries.append(['UPDATE OR IGNORE network_timezones SET timezone = ? '
+                            'WHERE network_name = ?;', [timezone, network]])
 
         if existing:
             del network_list[network]
@@ -123,7 +125,8 @@ def get_network_timezone(network):
     network_tz_name = network_dict.get(network)
     if network and not (network_tz_name or network in missing_network_timezones):
         missing_network_timezones.add(network)
-        logger.log('Missing time zone for network: {0}. Check valid network is set in indexer (theTVDB) before filing issue.'.format(orig_network),
+        logger.log('Missing time zone for network: {0}. '
+                   'Check valid network is set in indexer (theTVDB) before filing issue.'.format(orig_network),
                    logger.ERROR)
 
     try:

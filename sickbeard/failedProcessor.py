@@ -46,13 +46,13 @@ class FailedProcessor(object):
         """
         self._log("Failed download detected: (" + str(self.nzb_name) + ", " + str(self.dir_name) + ")")
 
-        releaseName = show_name_helpers.determineReleaseName(self.dir_name, self.nzb_name)
-        if not releaseName:
+        release_name = show_name_helpers.determineReleaseName(self.dir_name, self.nzb_name)
+        if not release_name:
             self._log("Warning: unable to find a valid release name.", logger.WARNING)
             raise FailedPostProcessingFailedException()
 
         try:
-            parsed = NameParser(False).parse(releaseName)
+            parsed = NameParser(False).parse(release_name)
         except (InvalidNameException, InvalidShowException) as error:
             self._log("{0}".format(error), logger.DEBUG)
             raise FailedPostProcessingFailedException()

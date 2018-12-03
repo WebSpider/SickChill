@@ -182,8 +182,8 @@ class Logger(object):  # pylint: disable=too-many-instance-attributes
         # rotating log file handler
         if self.file_logging:
             rfh = logging.handlers.RotatingFileHandler(
-                self.log_file, maxBytes=int(sickbeard.LOG_SIZE * 1048576), backupCount=sickbeard.LOG_NR, encoding='utf-8'
-            )
+                self.log_file, maxBytes=int(sickbeard.LOG_SIZE * 1048576), backupCount=sickbeard.LOG_NR,
+                encoding='utf-8')
             rfh.setFormatter(CensoredFormatter('%(asctime)s %(levelname)-8s %(message)s', dateTimeFormat))
             rfh.setLevel(log_level)
 
@@ -271,7 +271,8 @@ class Logger(object):  # pylint: disable=too-many-instance-attributes
             or (sickbeard.GIT_AUTH_TYPE == 1 and sickbeard.GIT_TOKEN)
 
         if not all((gh_credentials, sickbeard.DEBUG, sickbeard.gh, classes.ErrorViewer.errors)):
-            submitter_result = 'Please set your GitHub token or username and password in the config and enable debug. Unable to submit issue ticket to GitHub!'
+            submitter_result = 'Please set your GitHub token or username and password in the config and enable debug.' \
+                               ' Unable to submit issue ticket to GitHub!'
             return submitter_result, issue_id
 
         try:
@@ -284,7 +285,8 @@ class Logger(object):  # pylint: disable=too-many-instance-attributes
             return submitter_result, issue_id
 
         if commits_behind is None or commits_behind > 0:
-            submitter_result = 'Please update SickChill, unable to submit issue ticket to GitHub with an outdated version!'
+            submitter_result = 'Please update SickChill, unable to submit issue ticket to GitHub ' \
+                               'with an outdated version!'
             return submitter_result, issue_id
 
         if self.submitter_running:
@@ -314,7 +316,8 @@ class Logger(object):  # pylint: disable=too-many-instance-attributes
                 try:
                     title_error = ss(str(cur_error.title))
                     if not title_error or title_error == 'None':
-                        title_error = re.match(r'^[A-Za-z0-9\-\[\] :]+::\s(?:\[[\w]{7}\])\s*(.*)$', ss(cur_error.message)).group(1)
+                        title_error = re.match(r'^[A-Za-z0-9\-\[\] :]+::\s(?:\[[\w]{7}\])\s*(.*)$',
+                                               ss(cur_error.message)).group(1)
 
                     if len(title_error) > 1000:
                         title_error = title_error[0:1000]
@@ -324,7 +327,8 @@ class Logger(object):  # pylint: disable=too-many-instance-attributes
                     title_error = 'UNKNOWN'
 
                 gist = None
-                regex = r'^(?P<time>{time})\s+(?P<level>[A-Z]+)\s+[A-Za-z0-9\-\[\] :]+::.*$'.format(time=re.escape(cur_error.time))
+                regex = r'^(?P<time>{time})\s+(?P<level>[A-Z]+)\s+[A-Za-z0-9\-\[\] :]+::.*$'.\
+                    format(time=re.escape(cur_error.time))
                 for i, data in enumerate(__log_data):
                     match = re.match(regex, data)
                     if match:
@@ -394,7 +398,8 @@ class Logger(object):  # pylint: disable=too-many-instance-attributes
                             else:
                                 submitter_result = 'Failed to comment on found issue #{0}!'.format(issue_id)
                         else:
-                            submitter_result = 'Issue #{0} is locked, check GitHub to find info about the error.'.format(issue_id)
+                            submitter_result = 'Issue #{0} is locked, check GitHub to find info ' \
+                                               'about the error.'.format(issue_id)
 
                         issue_found = True
                         break
@@ -541,7 +546,8 @@ def log_data(min_level, log_filter, log_search, max_lines):
             elif log_search and log_search.lower() in x.lower():
                 final_data.append(x)
                 found_lines += 1
-            elif not log_search and LOGGING_LEVELS[level] >= int(min_level) and (log_filter == '<NONE>' or log_name.startswith(log_filter)):
+            elif not log_search and LOGGING_LEVELS[level] >= int(min_level) and (log_filter == '<NONE>'
+                                                                                 or log_name.startswith(log_filter)):
                 final_data.append(x)
                 found_lines += 1
         else:

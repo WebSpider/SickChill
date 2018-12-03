@@ -65,7 +65,8 @@ def delete_folder(folder, check_empty=True):
     if check_empty:
         check_files = ek(os.listdir, folder)
         if check_files:
-            logger.log("Not deleting folder {0} found the following files: {1}".format(folder, check_files), logger.INFO)
+            logger.log("Not deleting folder {0} found the following files: {1}".format(folder, check_files),
+                       logger.INFO)
             return False
 
         try:
@@ -115,7 +116,8 @@ def delete_files(process_path, unwanted_files, result, force=False):
             try:
                 ek(os.chmod, cur_file_path, stat.S_IWRITE)
             except OSError as e:
-                result.output += log_helper("Cannot change permissions of {0}: {1}".format(cur_file_path, ex(e)), logger.DEBUG)
+                result.output += log_helper("Cannot change permissions of {0}: {1}".format(cur_file_path, ex(e)),
+                                            logger.DEBUG)
         try:
             ek(os.remove, cur_file_path)
         except OSError as e:
@@ -128,7 +130,8 @@ def log_helper(message, level=logger.INFO):
 
 
 # pylint: disable=too-many-arguments,too-many-branches,too-many-statements,too-many-locals
-def process_dir(process_path, release_name=None, process_method=None, force=False, is_priority=None, delete_on=False, failed=False, mode="auto"):
+def process_dir(process_path, release_name=None, process_method=None, force=False, is_priority=None, delete_on=False,
+                failed=False, mode="auto"):
     """
     Scans through the files in process_path and processes whatever media files it finds
 
@@ -153,7 +156,8 @@ def process_dir(process_path, release_name=None, process_method=None, force=Fals
     elif all([sickbeard.TV_DOWNLOAD_DIR,
               ek(os.path.isdir, sickbeard.TV_DOWNLOAD_DIR),
               ek(os.path.normpath, process_path) == ek(os.path.normpath, sickbeard.TV_DOWNLOAD_DIR)]):
-        process_path = ek(os.path.join, sickbeard.TV_DOWNLOAD_DIR, ek(os.path.abspath, process_path).split(os.path.sep)[-1])
+        process_path = ek(os.path.join, sickbeard.TV_DOWNLOAD_DIR,
+                          ek(os.path.abspath, process_path).split(os.path.sep)[-1])
         result.output += log_helper("Trying to use folder: {0} ".format(process_path), logger.DEBUG)
 
     # if we didn't find a real dir then quit
@@ -186,9 +190,8 @@ def process_dir(process_path, release_name=None, process_method=None, force=Fals
             if extracted_directories:
                 for extracted_directory in extracted_directories:
                     if extracted_directory.split(current_directory)[-1] not in directory_names:
-                        result.output += log_helper(
-                            "Adding extracted directory to the list of directories to process: {0}".format(extracted_directory), logger.DEBUG
-                        )
+                        result.output += log_helper("Adding extracted directory to the list of directories "
+                                                    "to process: {0}".format(extracted_directory), logger.DEBUG)
                         directories_from_rars.add(extracted_directory)
 
         if not validate_dir(current_directory, release_name, failed, result):
@@ -242,7 +245,8 @@ def process_dir(process_path, release_name=None, process_method=None, force=Fals
             this_rar = [rar_file for rar_file in rar_files if os.path.basename(directory_from_rar) == rar_file.rpartition('.')[0]]
             delete_files(current_directory, this_rar, result) # Deletes only if result.result == True
 
-    result.output += log_helper(("Processing Failed", "Successfully processed")[result.aggresult], (logger.WARNING, logger.INFO)[result.aggresult])
+    result.output += log_helper(("Processing Failed", "Successfully processed")[result.aggresult],
+                                (logger.WARNING, logger.INFO)[result.aggresult])
     if result.missed_files:
         result.output += log_helper("Some items were not processed.")
         for missed_file in result.missed_files:
@@ -269,10 +273,12 @@ def validate_dir(process_path, release_name, failed, result):  # pylint: disable
         result.output += log_helper("The directory name indicates it failed to extract.", logger.DEBUG)
         failed = True
     elif upper_name.startswith('_UNDERSIZED_') or upper_name.endswith('_UNDERSIZED_'):
-        result.output += log_helper("The directory name indicates that it was previously rejected for being undersized.", logger.DEBUG)
+        result.output += log_helper("The directory name indicates that it was previously "
+                                    "rejected for being undersized.", logger.DEBUG)
         failed = True
     elif upper_name.startswith('_UNPACK') or upper_name.endswith('_UNPACK'):
-        result.output += log_helper("The directory name indicates that this release is in the process of being unpacked.", logger.DEBUG)
+        result.output += log_helper("The directory name indicates that this release is "
+                                    "in the process of being unpacked.", logger.DEBUG)
         result.missed_files.append("{0} : Being unpacked".format(process_path))
         return False
 
@@ -299,10 +305,14 @@ def validate_dir(process_path, release_name, failed, result):  # pylint: disable
                 logger.WARNING)
             return False
 
-    for current_directory, directory_names, file_names in ek(os.walk, process_path, topdown=False, followlinks=sickbeard.PROCESSOR_FOLLOW_SYMLINKS):
+    for current_directory, directory_names, file_names in ek(os.walk, process_path, topdown=False,
+                                                             followlinks=sickbeard.PROCESSOR_FOLLOW_SYMLINKS):
         sync_files = filter(is_sync_file, file_names)
         if sync_files and sickbeard.POSTPONE_IF_SYNC_FILES:
-            result.output += log_helper("Found temporary sync files: {0} in path: {1}".format(sync_files, ek(os.path.join, process_path, sync_files[0])))
+            result.output += log_helper("Found temporary sync files: {0} in path: {1}".format(sync_files,
+                                                                                              ek(os.path.join,
+                                                                                                 process_path,
+                                                                                                 sync_files[0])))
             result.output += log_helper("Skipping post processing for folder: {0}".format(process_path))
             result.missed_files.append("{0} : Sync files found".format(ek(os.path.join, process_path, sync_files[0])))
             continue
@@ -380,7 +390,8 @@ def unrar(path, rar_files, force, result):  # pylint: disable=too-many-branches,
                         result.output += log_helper('Unpack directory cannot be verified. Using {0}'.format(path), logger.DEBUG)
 
                 # Fix up the list for checking if already processed
-                rar_media_files = [os.path.join(unpack_base_dir, rar_release_name, rar_media_file) for rar_media_file in rar_media_files]
+                rar_media_files = [os.path.join(unpack_base_dir, rar_release_name, rar_media_file)
+                                   for rar_media_file in rar_media_files]
 
                 skip_rar = False
                 for rar_media_file in rar_media_files:
@@ -410,7 +421,8 @@ def unrar(path, rar_files, force, result):  # pylint: disable=too-many-branches,
                 failure = ('Rar Open Error, check the parent folder and destination file permissions.',
                            'Unpacking failed with a File Open Error (file permissions?)')
             except RarExecError:
-                failure = ('Invalid Rar Archive Usage', 'Unpacking Failed with Invalid Rar Archive Usage. Is unrar installed and on the system PATH?')
+                failure = ('Invalid Rar Archive Usage', 'Unpacking Failed with Invalid Rar Archive Usage. '
+                                                        'Is unrar installed and on the system PATH?')
             except BadRarFile:
                 failure = ('Invalid Rar Archive', 'Unpacking Failed with an Invalid Rar Archive Error')
             except NeedFirstVolume:
@@ -422,7 +434,8 @@ def unrar(path, rar_files, force, result):  # pylint: disable=too-many-branches,
                     del rar_handle
 
             if failure:
-                result.output += log_helper('Failed to extract the archive {0}: {1}'.format(archive, failure[0]), logger.WARNING)
+                result.output += log_helper('Failed to extract the archive {0}: {1}'.format(archive,
+                                                                                            failure[0]), logger.WARNING)
                 result.missed_files.append('{0} : Unpacking failed: {1}'.format(archive, failure[1]))
                 result.result = False
                 continue
@@ -445,7 +458,9 @@ def already_processed(process_path, video_file, force, result):  # pylint: disab
 
     # Avoid processing the same dir again if we use a process method <> move
     main_db_con = db.DBConnection()
-    sql_result = main_db_con.select("SELECT release_name FROM tv_episodes WHERE release_name IN (?, ?) LIMIT 1", [process_path, video_file.rpartition('.')[0]])
+    sql_result = main_db_con.select("SELECT release_name FROM tv_episodes "
+                                    "WHERE release_name IN (?, ?) "
+                                    "LIMIT 1", [process_path, video_file.rpartition('.')[0]])
     if sql_result:
         # result.output += log_helper(u"You're trying to post process a dir that's already been processed, skipping", logger.DEBUG)
         return True
@@ -457,7 +472,9 @@ def already_processed(process_path, video_file, force, result):  # pylint: disab
     except (InvalidNameException, InvalidShowException):  # ignore the exception, because we kind of expected it, but create parse_result anyway so we can perform a check on it.
         parse_result = False  # pylint: disable=redefined-variable-type
 
-    search_sql = "SELECT tv_episodes.indexerid, history.resource FROM tv_episodes INNER JOIN history ON history.showid=tv_episodes.showid" # This part is always the same
+    search_sql = "SELECT tv_episodes.indexerid, history.resource " \
+                 "FROM tv_episodes " \
+                 "INNER JOIN history ON history.showid=tv_episodes.showid" # This part is always the same
     search_sql += " WHERE history.season=tv_episodes.season AND history.episode=tv_episodes.episode"
 
     # If we find a showid, a season number, and one or more episode numbers then we need to use those in the query
@@ -469,7 +486,8 @@ def already_processed(process_path, video_file, force, result):  # pylint: disab
     search_sql += " AND history.resource LIKE ? LIMIT 1"
     sql_result = main_db_con.select(search_sql, ['%' + video_file])
     if sql_result:
-        result.output += log_helper("You're trying to post process a video that's already been processed, skipping", logger.DEBUG)
+        result.output += log_helper("You're trying to post process a video that's already been processed, skipping",
+                                    logger.DEBUG)
         return True
 
     return False
@@ -510,7 +528,8 @@ def process_media(process_path, video_files, release_name, process_method, force
         if result.result:
             result.output += log_helper("Processing succeeded for {0}".format(cur_video_file_path))
         else:
-            result.output += log_helper("Processing failed for {0}: {1}".format(cur_video_file_path, process_fail_message), logger.WARNING)
+            result.output += log_helper("Processing failed for {0}: {1}".format(cur_video_file_path,
+                                                                                process_fail_message), logger.WARNING)
             result.missed_files.append("{0} : Processing failed: {1}".format(cur_video_file_path, process_fail_message))
             result.aggresult = False
 
@@ -537,9 +556,13 @@ def process_failed(process_path, release_name, result):
                 result.output += log_helper("Deleted folder: {0}".format(process_path), logger.DEBUG)
 
         if result.result:
-            result.output += log_helper("Failed Download Processing succeeded: ({0}, {1})".format(release_name, process_path))
+            result.output += log_helper("Failed Download Processing succeeded: ({0}, {1})".format(release_name,
+                                                                                                  process_path))
         else:
-            result.output += log_helper("Failed Download Processing failed: ({0}, {1}): {2}".format(release_name, process_path, process_fail_message), logger.WARNING)
+            result.output += log_helper("Failed Download Processing failed: ({0}, {1}): {2}".format(release_name,
+                                                                                                    process_path,
+                                                                                                    process_fail_message),
+                                        logger.WARNING)
 
 
 def subtitles_enabled(video):
@@ -552,12 +575,15 @@ def subtitles_enabled(video):
     try:
         parse_result = NameParser().parse(video, cache_result=True)
     except (InvalidNameException, InvalidShowException):
-        logger.log('Not enough information to parse filename into a valid show. Consider add scene exceptions or improve naming for: {0}'.format(video), logger.WARNING)
+        logger.log('Not enough information to parse filename into a valid show. '
+                   'Consider add scene exceptions or improve naming for: {0}'.format(video), logger.WARNING)
         return False
 
     if parse_result.show.indexerid:
         main_db_con = db.DBConnection()
-        sql_results = main_db_con.select("SELECT subtitles FROM tv_shows WHERE indexer_id = ? LIMIT 1", [parse_result.show.indexerid])
+        sql_results = main_db_con.select("SELECT subtitles "
+                                         "FROM tv_shows "
+                                         "WHERE indexer_id = ? LIMIT 1", [parse_result.show.indexerid])
         return bool(sql_results[0][b"subtitles"]) if sql_results else False
     else:
         logger.log('Empty indexer ID for: {0}'.format(video), logger.WARNING)

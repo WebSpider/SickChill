@@ -114,7 +114,9 @@ def change_unrar_tool(unrar_tool, alt_unrar_tool):
             os.remove(bad_unrar)
             logger.log('Removed a bad copy of unrar')
         except OSError as e:
-            logger.log("Unable to delete bad unrar.exe file {0}: {1}. You should delete it manually".format(bad_unrar, e.strerror), logger.WARNING)
+            logger.log("Unable to delete bad unrar.exe file {0}: {1}. You should delete it manually".format(bad_unrar,
+                                                                                                            e.strerror),
+                       logger.WARNING)
 
     for tool in (unrar_tool, alt_unrar_tool, rarfile.UNRAR_TOOL, rarfile.ALT_TOOL):
         try:
@@ -124,7 +126,8 @@ def change_unrar_tool(unrar_tool, alt_unrar_tool):
             # noinspection PyProtectedMember
             rarfile._check_unrar_tool()
             if not set_requested:
-                logger.log('Unrar tool set to `{}`. Your selection was not found so we reverted to a working default.'.format(tool))
+                logger.log('Unrar tool set to `{}`. Your selection was not found so we reverted to a working default.'.
+                           format(tool))
             return True
         except (rarfile.RarCannotExec, rarfile.RarExecError, OSError, IOError):
             pass
@@ -166,7 +169,6 @@ def change_unrar_tool(unrar_tool, alt_unrar_tool):
                     ek(os.remove, unrar_zip)
                 except OSError as e:
                     logger.log("Unable to delete downloaded file {0}: {1}. You may delete it manually".format(unrar_zip, e.strerror))
-
                 check = os.path.join(unrar_store, "unrar.exe")
                 try:
                     rarfile.custom_check(check)
@@ -426,6 +428,7 @@ def change_showupdate_hour(freq):
 
     sickbeard.showUpdateScheduler.start_time = datetime.time(hour=sickbeard.SHOWUPDATE_HOUR)
     return True
+
 
 def change_subtitle_finder_frequency(subtitles_finder_frequency):
     """
@@ -688,7 +691,8 @@ def min_max(val, default, low, high):
 ################################################################################
 # check_setting_int                                                            #
 ################################################################################
-def check_setting_int(config, cfg_name, item_name, def_val=0, min_val=None, max_val=None, fallback_def=True, silent=True):
+def check_setting_int(config, cfg_name, item_name, def_val=0, min_val=None, max_val=None, fallback_def=True,
+                      silent=True):
     """
     Checks config setting of integer type
 
@@ -758,7 +762,8 @@ def check_setting_int(config, cfg_name, item_name, def_val=0, min_val=None, max_
 ################################################################################
 # check_setting_float                                                          #
 ################################################################################
-def check_setting_float(config, cfg_name, item_name, def_val=0.0, min_val=None, max_val=None, fallback_def=True, silent=True):
+def check_setting_float(config, cfg_name, item_name, def_val=0.0, min_val=None, max_val=None, fallback_def=True,
+                        silent=True):
     """
     Checks config setting of float type
 
@@ -842,7 +847,8 @@ def check_setting_str(config, cfg_name, item_name, def_val=six.text_type(''), si
             "{dom}:{key} default value is not the correct type. Expected {t}, got {dt}".format(
                 dom=cfg_name, key=item_name, t='string', dt=type(def_val)), logger.ERROR)
 
-    # For passwords you must include the word `password` in the item_name and add `helpers.encrypt(ITEM_NAME, ENCRYPTION_VERSION)` in save_config()
+    # For passwords you must include the word `password` in the item_name and
+    # add `helpers.encrypt(ITEM_NAME, ENCRYPTION_VERSION)` in save_config()
     encryption_version = (0, sickbeard.ENCRYPTION_VERSION)['password' in item_name]
 
     try:
@@ -860,8 +866,10 @@ def check_setting_str(config, cfg_name, item_name, def_val=six.text_type(''), si
 
         config[cfg_name][item_name] = helpers.encrypt(my_val, encryption_version)
 
-    if (censor_log or (cfg_name, item_name) in six.iteritems(logger.censored_items)) and not item_name.endswith('custom_url'):
-        logger.censored_items[cfg_name, item_name] = my_val
+    if (censor_log or (cfg_name, item_name) in six.iteritems(logger.censored_items)) and not item_name.endswith(
+        'custom_url'):
+
+            logger.censored_items[cfg_name, item_name] = my_val
 
     if not silent:
         logger.log(item_name + " -> " + my_val, logger.DEBUG)
@@ -950,9 +958,8 @@ class ConfigMigrator(object):
         if self.config_version > self.expected_config_version:
             logger.log_error_and_exit(
                 """Your config version ({0:d}) has been incremented past what this version of SickChill supports ({1:d}).
-                If you have used other forks or a newer version of SickChill, your config file may be unusable due to their modifications.""".format(
-                    self.config_version, self.expected_config_version
-                )
+                If you have used other forks or a newer version of SickChill, your config file may be unusable 
+                due to their modifications.""".format(self.config_version, self.expected_config_version)
             )
 
         sickbeard.CONFIG_VERSION = self.config_version
@@ -1068,27 +1075,27 @@ class ConfigMigrator(object):
         else:
             ep_string = _naming_ep_type[ep_type]
 
-        finalName = ""
+        final_name = ""
 
         # start with the show name
         if use_show_name and show_name:
-            finalName += show_name + naming_sep_type[sep_type]
+            final_name += show_name + naming_sep_type[sep_type]
 
         # add the season/ep stuff
-        finalName += ep_string
+        final_name += ep_string
 
         # add the episode name
         if use_ep_name and ep_name:
-            finalName += naming_sep_type[sep_type] + ep_name
+            final_name += naming_sep_type[sep_type] + ep_name
 
         # add the quality
         if use_quality and ep_quality:
-            finalName += naming_sep_type[sep_type] + ep_quality
+            final_name += naming_sep_type[sep_type] + ep_quality
 
         if use_periods:
-            finalName = re.sub(r"\s+", ".", finalName)
+            final_name = re.sub(r"\s+", ".", final_name)
 
-        return finalName
+        return final_name
 
     # Migration v2: Dummy migration to sync backup number with config version number
     @staticmethod
@@ -1126,11 +1133,11 @@ class ConfigMigrator(object):
                     key = '0'
 
                 if name == 'NZBs.org':
-                    catIDs = '5030,5040,5060,5070,5090'
+                    cat_ids = '5030,5040,5060,5070,5090'
                 else:
-                    catIDs = '5030,5040,5060'
+                    cat_ids = '5030,5040,5060'
 
-                cur_provider_data_list = [name, url, key, catIDs, enabled]
+                cur_provider_data_list = [name, url, key, cat_ids, enabled]
                 new_newznab_data.append("|".join(cur_provider_data_list))
 
             sickbeard.NEWZNAB_DATA = "!!!".join(new_newznab_data)
@@ -1183,7 +1190,8 @@ class ConfigMigrator(object):
                 cur_metadata.append('0')
                 # swap show fanart, show poster
                 cur_metadata[3], cur_metadata[2] = cur_metadata[2], cur_metadata[3]
-                # if user was using _use_banner to override the poster, instead enable the banner option and deactivate poster
+                # if user was using _use_banner to override the poster, instead
+                # enable the banner option and deactivate poster
                 if metadata_name == 'XBMC' and _use_banner:
                     cur_metadata[4], cur_metadata[3] = cur_metadata[3], '0'
                 # write new format
@@ -1217,7 +1225,8 @@ class ConfigMigrator(object):
         sickbeard.KODI_ALWAYS_ON = check_setting_bool(self.config_obj, 'XBMC', 'xbmc_always_on', True)
         sickbeard.KODI_NOTIFY_ONSNATCH = check_setting_bool(self.config_obj, 'XBMC', 'xbmc_notify_onsnatch')
         sickbeard.KODI_NOTIFY_ONDOWNLOAD = check_setting_bool(self.config_obj, 'XBMC', 'xbmc_notify_ondownload')
-        sickbeard.KODI_NOTIFY_ONSUBTITLEDOWNLOAD = check_setting_bool(self.config_obj, 'XBMC', 'xbmc_notify_onsubtitledownload')
+        sickbeard.KODI_NOTIFY_ONSUBTITLEDOWNLOAD = check_setting_bool(self.config_obj, 'XBMC',
+                                                                      'xbmc_notify_onsubtitledownload')
         sickbeard.KODI_UPDATE_LIBRARY = check_setting_bool(self.config_obj, 'XBMC', 'xbmc_update_library')
         sickbeard.KODI_UPDATE_FULL = check_setting_bool(self.config_obj, 'XBMC', 'xbmc_update_full')
         sickbeard.KODI_UPDATE_ONLYFIRST = check_setting_bool(self.config_obj, 'XBMC', 'xbmc_update_onlyfirst')
@@ -1225,7 +1234,8 @@ class ConfigMigrator(object):
         sickbeard.KODI_USERNAME = check_setting_str(self.config_obj, 'XBMC', 'xbmc_username', censor_log=True)
         sickbeard.KODI_PASSWORD = check_setting_str(self.config_obj, 'XBMC', 'xbmc_password', censor_log=True)
         sickbeard.METADATA_KODI = check_setting_str(self.config_obj, 'General', 'metadata_xbmc', '0|0|0|0|0|0|0|0|0|0')
-        sickbeard.METADATA_KODI_12PLUS = check_setting_str(self.config_obj, 'General', 'metadata_xbmc_12plus', '0|0|0|0|0|0|0|0|0|0')
+        sickbeard.METADATA_KODI_12PLUS = check_setting_str(self.config_obj, 'General', 'metadata_xbmc_12plus',
+                                                           '0|0|0|0|0|0|0|0|0|0')
 
     # Migration v7: Use version 2 for password encryption
     @staticmethod
@@ -1241,7 +1251,8 @@ class ConfigMigrator(object):
 
     # Migration v9: Rename autopostprocesser (typo) to autopostprocessor
     def _migrate_v9(self):
-        sickbeard.AUTOPOSTPROCESSOR_FREQUENCY = check_setting_str(self.config_obj, 'General', 'autopostprocesser_frequency')
+        sickbeard.AUTOPOSTPROCESSOR_FREQUENCY = check_setting_str(self.config_obj, 'General',
+                                                                  'autopostprocesser_frequency')
 
     # Migration v10: Change flatten_folders_default to season_folders_default (inverted)
     def _migrate_v10(self):

@@ -122,8 +122,8 @@ class ProcessingQueue(generic_queue.GenericQueue):
 
         if not ek(os.path.isabs, directory):
             return log_helper(
-                "{mode} post-processing attempted but directory is relative (and probably not what you really want to process): {directory}".format(
-                    **replacements), logger.WARNING)
+                "{mode} post-processing attempted but directory is relative (and probably not what you really "
+                "want to process): {directory}".format(**replacements), logger.WARNING)
 
         item = self.find_in_queue(directory, mode)
 
@@ -133,10 +133,12 @@ class ProcessingQueue(generic_queue.GenericQueue):
         if item:
             if self.currentItem == item:
                 return log_helper(
-                    "{directory} is already being processed right now, please wait until it completes before trying again".format(**replacements))
+                    "{directory} is already being processed right now, please wait until it completes "
+                    "before trying again".format(**replacements))
 
             item.set_params(directory, filename, method, force, is_priority, delete, failed, mode)
-            message = log_helper("A task for {directory} was already in the processing queue, updating the settings for that task".format(**replacements))
+            message = log_helper("A task for {directory} was already in the processing queue, updating the settings "
+                                 "for that task".format(**replacements))
             return message + "<br\><span class='hidden'>Processing succeeded</span>"
         else:
             item = PostProcessorTask(directory, filename, method, force, is_priority, delete, failed, mode)
@@ -147,7 +149,8 @@ class ProcessingQueue(generic_queue.GenericQueue):
                 return message
             else:
                 super(ProcessingQueue, self).add_item(item)
-                message = log_helper("{mode} post processing task for {directory} was added to the queue".format(**replacements))
+                message = log_helper("{mode} post processing task for {directory} was added "
+                                     "to the queue".format(**replacements))
                 return message + "<br\><span class='hidden'>Processing succeeded</span>"
 
 
@@ -167,7 +170,8 @@ class PostProcessorTask(generic_queue.QueueItem):
         :param mode: processing type: auto/manual
         :return: None
         """
-        super(PostProcessorTask, self).__init__('{mode}'.format(mode=mode.title()), (MANUAL_POST_PROCESS, AUTO_POST_PROCESS)[mode == "auto"])
+        super(PostProcessorTask, self).__init__('{mode}'.format(mode=mode.title()),
+                                                (MANUAL_POST_PROCESS, AUTO_POST_PROCESS)[mode == "auto"])
 
         self.directory = directory
         self.filename = filename
@@ -182,7 +186,8 @@ class PostProcessorTask(generic_queue.QueueItem):
 
         self.last_result = None
 
-    def set_params(self, directory, filename=None, method=None, force=False, is_priority=None, delete=False, failed=False, mode="auto"):
+    def set_params(self, directory, filename=None, method=None, force=False, is_priority=None, delete=False,
+                   failed=False, mode="auto"):
         """
         Adjust settings for a task that is already in the queue
         :param directory: directory to process
@@ -213,7 +218,8 @@ class PostProcessorTask(generic_queue.QueueItem):
 
         # noinspection PyBroadException
         try:
-            logger.log("Beginning {mode} post processing task: {directory}".format(mode=self.mode, directory=self.directory))
+            logger.log("Beginning {mode} post processing task: {directory}".format(mode=self.mode,
+                                                                                   directory=self.directory))
             self.last_result = process_dir(
                 process_path=self.directory,
                 release_name=self.filename,
@@ -224,7 +230,8 @@ class PostProcessorTask(generic_queue.QueueItem):
                 failed=self.failed,
                 mode=self.mode
             )
-            logger.log("{mode} post processing task for {directory} completed".format(mode=self.mode.title(), directory=self.directory))
+            logger.log("{mode} post processing task for {directory} completed".format(mode=self.mode.title(),
+                                                                                      directory=self.directory))
 
             # give the CPU a break
             time.sleep(common.cpu_presets[sickbeard.CPU_PRESET])

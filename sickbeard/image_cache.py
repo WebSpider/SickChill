@@ -279,9 +279,10 @@ class ImageCache(object):
                        self.BANNER_THUMB: not self.has_banner_thumbnail(show_obj.indexerid),
                        self.FANART: not self.has_fanart(show_obj.indexerid)}
 
-        if not need_images[self.POSTER] and not need_images[self.BANNER] and not need_images[self.POSTER_THUMB] and not need_images[self.BANNER_THUMB] and not need_images[self.FANART]:
-            logger.log("No new cache images needed, not retrieving new ones", logger.DEBUG)
-            return
+        if not need_images[self.POSTER] and not need_images[self.BANNER] and not need_images[self.POSTER_THUMB] \
+            and not need_images[self.BANNER_THUMB] and not need_images[self.FANART]:
+                logger.log("No new cache images needed, not retrieving new ones", logger.DEBUG)
+                return
 
         # check the show dir for poster or banner images and use them
         if need_images[self.POSTER] or need_images[self.BANNER] or need_images[self.FANART]:
@@ -302,9 +303,9 @@ class ImageCache(object):
                             cur_file_type) + " needs metadata: " + str(need_images[cur_file_type]), logger.DEBUG)
 
                         if cur_file_type in need_images and need_images[cur_file_type]:
-                            logger.log(
-                                "Found an image in the show dir that doesn't exist in the cache, caching it: " + cur_file_name + ", type " + str(
-                                    cur_file_type), logger.DEBUG)
+                            logger.log("Found an image in the show dir that doesn't exist in the cache, "
+                                       "caching it: {0}, type {1}".format(cur_file_name, str(cur_file_type)),
+                                       logger.DEBUG)
                             self._cache_image_from_file(cur_file_name, cur_file_type, show_obj.indexerid)
                             need_images[cur_file_type] = False
             except ShowDirectoryNotFoundException:
